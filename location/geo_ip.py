@@ -19,7 +19,8 @@ class GeoIPUtil(object):
             response = self.gi.record_by_addr(ip_address)
             return self.format(response)
         except:
-            print('Unable to resolve loc for ip:', ip_address)
+            #print('Unable to resolve loc for ip:', ip_address)
+            return None
         return None    
 
     #resolve by Domain
@@ -28,8 +29,9 @@ class GeoIPUtil(object):
             response = self.gi.record_by_name(domain)
             return self.format(response)
         except:
-            print('Unable to resolve loc for domain:', domain)
-            return self.get_country(domain)            
+            return None
+            #print('Unable to resolve loc for domain:', domain)
+            #return self.get_country(domain)            
         return None
 
     def format(self, response):
@@ -49,10 +51,10 @@ class GeoIPUtil(object):
             return None
         try:
             country = pc.countries.get(alpha_2=str.upper(match.groups(1)[0])).name
-            print ('country is', country)
-            return {'country': country}
+            #print ('country is', country)
+            return country
         except Exception as e:
-            print(e)
+            #print(e)
             return None
 
 
