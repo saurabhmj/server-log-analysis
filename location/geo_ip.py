@@ -42,20 +42,25 @@ class GeoIPUtil(object):
         return output
 
     def get_country(self, domain):
-        pattern = re.compile("[\.|a-z|0-9]+\.([a-z]{2})$")
+        #TODO it would be simpler to do on domain ext
+        pattern = re.compile("[\.|a-z|0-9|_|-]+\.([a-z]{2})$")
         match = pattern.match(domain)
         if match is None:
             return None
         try:
             country = pc.countries.get(alpha_2=str.upper(match.groups(1)[0])).name
+            print ('country is', country)
             return {'country': country}
         except Exception as e:
-            #print(e)
+            print(e)
             return None
 
 
 if __name__ == "__main__":
     geo_ip = GeoIPUtil()
     print(geo_ip.get_loc_by_name("van15423.direct.ca"))
-    print(geo_ip.get_loc_by_name("www.irctc.co.in"))
-    print(geo_ip.get_loc_by_name("www.umn.edu"))
+    print(geo_ip.get_country("wwwsv1.u-aizu.ac.jp"))
+    print(geo_ip.get_country("ppp3_186.bekkoame.or.jp"))
+    print(geo_ip.get_country("core.sci.toyama-u.ac.jp"))
+    print(geo_ip.get_country("lab1-c.ia.pw.edu.pl"))
+    print(geo_ip.get_country("dice2-f.desy.de"))
