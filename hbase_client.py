@@ -12,11 +12,25 @@ def insert_row(table_name, row_key, column_info):
         table.put(row_key, column_info)
         #print('Inserted Succesfully!!')
     except Exception as e:
+        #print('Row Key:', row_key)
+        #print('Columns:', column_info)        
         print('Insert Failed..')
         print(e)
         raise Exception('Insert Failed')
 
-
+#batch insert
+def insert_batch(table_name, data):
+    try:
+        table = connection.table(table_name)
+        b = table.batch()
+        for key, columns in data.items():
+            b.put(key, columns)
+        b.send()
+        #print('Inserted Succesfully!!')
+    except Exception as e:
+        print (e)
+        print('Insert Failed..')
+        #raise Exception('Batch Insert Failed')
 
 def create_table(table_name, families):
     try:
@@ -41,7 +55,7 @@ def truncate_table(table_name, families):
     delete_table(table_name)
     create_table(table_name, families)
 
-def test_delete_create(table_name='server_logs_test', families=['log_info','loca_info']):
+def test_delete_create(table_name='server_logs_new', families=['log_info','loca_info']):
     delete_table(table_name)
     create_table(table_name, families)
 

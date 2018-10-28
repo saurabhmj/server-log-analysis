@@ -11,7 +11,7 @@ class GeoIPUtil(object):
     GEO_IP_DB_PATH = os.path.join(CUR_PATH, "db", "GeoLiteCity.dat")
 
     def __init__(self):
-        self.gi = pygeoip.GeoIP(GeoIPUtil.GEO_IP_DB_PATH)
+        self.gi = pygeoip.GeoIP(GeoIPUtil.GEO_IP_DB_PATH, pygeoip.MEMORY_CACHE)
         
     #resolve by IP    
     def get_loc_by_ip(self, ip_address):
@@ -20,18 +20,16 @@ class GeoIPUtil(object):
             return self.format(response)
         except:
             #print('Unable to resolve loc for ip:', ip_address)
-            return None
-        return None    
+            return None    
 
     #resolve by Domain
-    def get_loc_by_name(self, domain):
+    def get_loc_by_domain(self, domain):
         try:
             response = self.gi.record_by_name(domain)
             return self.format(response)
         except:
-            return None
             #print('Unable to resolve loc for domain:', domain)
-            #return self.get_country(domain)            
+            return self.get_country_by_domain(domain)            
         return None
 
     def format(self, response):
@@ -43,7 +41,7 @@ class GeoIPUtil(object):
         output['longitude'] = response['longitude']
         return output
 
-    def get_country(self, domain):
+    def get_country_by_domain(self, domain):
         #TODO it would be simpler to do on domain ext
         pattern = re.compile("[\.|a-z|0-9|_|-]+\.([a-z]{2})$")
         match = pattern.match(domain)
@@ -52,7 +50,7 @@ class GeoIPUtil(object):
         try:
             country = pc.countries.get(alpha_2=str.upper(match.groups(1)[0])).name
             #print ('country is', country)
-            return country
+            return {'country': country}
         except Exception as e:
             #print(e)
             return None
@@ -60,9 +58,9 @@ class GeoIPUtil(object):
 
 if __name__ == "__main__":
     geo_ip = GeoIPUtil()
-    print(geo_ip.get_loc_by_name("van15423.direct.ca"))
-    print(geo_ip.get_country("wwwsv1.u-aizu.ac.jp"))
-    print(geo_ip.get_country("ppp3_186.bekkoame.or.jp"))
-    print(geo_ip.get_country("core.sci.toyama-u.ac.jp"))
-    print(geo_ip.get_country("lab1-c.ia.pw.edu.pl"))
-    print(geo_ip.get_country("dice2-f.desy.de"))
+    print(geo_ip.get_loc_by_domain("van15423.direct.ca"))
+    print(geo_ip.get_country_by_domain("wwwsv1.u-aizu.ac.jp"))
+    print(geo_ip.get_country_by_domain("ppp3_186.bekkoame.or.jp"))
+    print(geo_ip.get_country_by_domain("core.sci.toyama-u.ac.jp"))
+    print(geo_ip.get_country_by_domain("lab1-c.ia.pw.edu.pl"))
+    print(geo_ip.get_country_by_domain("dice2-f.desy.de"))
