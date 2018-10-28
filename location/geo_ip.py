@@ -2,6 +2,8 @@
 
 import os
 import pygeoip
+import pycountry as pc
+import re
 
 class GeoIPUtil(object):
     
@@ -27,6 +29,7 @@ class GeoIPUtil(object):
             return self.format(response)
         except:
             print('Unable to resolve loc for domain:', domain)
+            return self.get_country(domain)            
         return None
 
     def format(self, response):
@@ -37,6 +40,19 @@ class GeoIPUtil(object):
         output['latitude'] = response['latitude']
         output['longitude'] = response['longitude']
         return output
+
+    def get_country(self, domain):
+        pattern = re.compile("[\.|a-z|0-9]+\.([a-z]{2})$")
+        match = pattern.match(domain)
+        if match is None:
+            return None
+        try:
+            country = pc.countries.get(alpha_2=str.upper(match.groups(1)[0])).name
+            return {'country': country}
+        except Exception as e:
+            #print(e)
+            return None
+
 
 if __name__ == "__main__":
     geo_ip = GeoIPUtil()

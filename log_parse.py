@@ -11,8 +11,10 @@ log_file_path = '/home/ubuntu/datasets/nasa_log_aug'
 regex = "(.*) - - \[(.*)\] \"([A-Z]+) (.*)\" ([0-9]{3}) (-|[0-9]+)"
 pattern = re.compile(regex)
 
+FAMILIES = ['log_info','loca_info']
 TABLE = 'server_logs_test'
 LOG_COLS =  ["log_info:host", "log_info:server_ts", "log_info:type", "log_info:url", "log_info:status", "log_info:bytes"]
+#hbase_client.truncate_table(TABLE, FAMILIES)
 
 #validating IP
 def is_IP(host):
@@ -61,6 +63,11 @@ with open(log_file_path, "r") as file:
         for i in range(len(LOG_COLS)):
             log_info[LOG_COLS[i]] = match.group(i+1)
         
+        #BYTES
+        if log_info["log_info:bytes"] == '-':
+            log_info["log_info:bytes"] = '0' 
+
+
         #URL
         url = transform_URL(log_info['log_info:url'])
         log_info['log_info:url'] = url
@@ -90,7 +97,7 @@ with open(log_file_path, "r") as file:
         #print(result) 
         #print('\n')        
         #Load
-        ROW_ID = str(uuid.uuid1()) #TODO change this
+        ROW_ID = str(time.time())#str(uuid.uuid1()) #TODO change this
         try:
             hbase_client.insert_row(TABLE, ROW_ID, result)
         except:
