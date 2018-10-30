@@ -5,10 +5,12 @@ import time
 
 class metadata():
 
-    def __init__(self, table = 'sl_metadata', families = ['count','calendar'], create=False, truncate=False):
+    def __init__(self, table = 'sl_metadata', families = ['metainfo','calendar'], create=False, truncate=False):
         self.table = table
         self.families = families
         self.count = 0
+        self.denied = 0
+        self.hosts = set()
         if create:
             self.create_table()
         if truncate:
@@ -32,6 +34,21 @@ class metadata():
 
     def inc_count(self):
         self.count += 1
+
+    def inc_denied(self):
+        self.denied +=1
+
+    def reset_denied(self):
+        self.denied = 0
+
+    def add_host(self, host):
+        self.hosts.add(host)
+
+    def get_num_hosts(self):
+        return len(self.hosts)
+
+    def reset_hosts(self):
+        self.hosts.clear()        
 
     def truncate_table(self):
         hbase_client.truncate_table(self.table, self.families)

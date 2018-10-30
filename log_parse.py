@@ -6,13 +6,14 @@ import time
 import tldextract
 from datetime import datetime
 from location.geo_ip import GeoIPUtil
+from metadata import metadata
 
 log_file_path = '/home/ubuntu/datasets/nasa_log_jul'
 regex = "(.*) - - \[(.*)\] \"([A-Z]+) (.*)\" ([0-9]{3}) (-|[0-9]+)"
 pattern = re.compile(regex)
 
 FAMILIES = ['log_info','loca_info']
-TABLE = 'server_logs_new'
+TABLE = 'server_logs'
 LOG_COLS =  ["log_info:host", "log_info:server_ts", "log_info:type", "log_info:url", "log_info:status", "log_info:bytes"]
 #hbase_client.truncate_table(TABLE, FAMILIES)
 
@@ -22,6 +23,7 @@ LOG_COLS =  ["log_info:host", "log_info:server_ts", "log_info:type", "log_info:u
 tgt_time_fmt = "%Y-%m-%d %H:%M:%S"
 src_time_fmt = "%d/%b/%Y:%H:%M:%S %z"
 
+denied_requests = [str(a) for a in range(400,500)]
 start_time = "1995-08-01 00:00:00"
 meta = metadata()
 meta.initialize_timer(start_time=start_time)
@@ -31,9 +33,11 @@ upper_b = next(window)
 #d_meta = {}
 
 
-def insert_metadata(count, lower_b, upper_b):
+def insert_metadata(count, lower_b, upper_b, num_hosts, denied_reqs):
     d_meta = {}
-    d_meta['count:count'] = str(count)
+    d_meta['metainfo:count'] = str(count)
+    d_meta['metainfo:denied'] = str(denied_reqs)
+    d_meta['metainfo:hosts'] = str(num_hosts)
     cal = datetime.utcfromtimestamp(lower_b)
     d_meta['calendar:day'] = str(cal.day)
     d_meta['calendar:month'] = str(cal.month)
@@ -46,6 +50,17 @@ def insert_metadata(count, lower_b, upper_b):
         print(str(count), " for ", str(cal))
     meta.add_row(str(upper_b), d_meta)
 
+
+def inc_metadata(meta, host, status):
+    meta.inc_count()
+    meta.add_host(host)
+    if status in denied_requests:
+        meta.inc_denied()
+
+def reset_metadata(meta):
+    meta.reset_count()
+    meta.reset_denied()
+    meta.reset_hosts()
 #validating IP
 def is_IP(host):
     try:
@@ -101,7 +116,9 @@ with open(log_file_path, "r", encoding = 'ISO-8859-1') as file:
             for i in range(len(LOG_COLS)):
                 log_info[LOG_COLS[i]] = match.group(i+1)
         
-            #BYTES
+            status = log_info["log_info:status"]#BYTES
+
+
             if log_info["log_info:bytes"] == '-':
                 log_info["log_info:bytes"] = '0' 
 
@@ -160,26 +177,28 @@ with open(log_file_path, "r", encoding = 'ISO-8859-1') as file:
             ########################
             curr_ts = time.mktime(time.strptime(server_ts, tgt_time_fmt))
             #print(str(curr_ts), str(lower_b), str(upper_b))
-            if lower_b <= curr_ts < upper_b:
-                meta.inc_count() #increment count of requests
+            if lower_b < curr_ts <= upper_b:
+                inc_metadata(meta, host, status)
+                 #increment count of requests
 
             #crosssing the boundry
             elif curr_ts > upper_b:
                 #TODO make sure all the empty bounds are inserted with 0s
                 
-                insert_metadata(meta.count, lower_b, upper_b)
+                insert_metadata(meta.count, lower_b, upper_b, meta.get_num_hosts(), meta.denied)
 
                 #update these accordingly
-                meta.reset_count()
+                reset_metadata(meta)
                 lower_b = upper_b
                 upper_b = next(window)
 
                 while curr_ts > upper_b:
-                    insert_metadata(0, lower_b, upper_b)
+                    insert_metadata(0, lower_b, upper_b,0,0)
                     lower_b = upper_b
                     upper_b = next(window)
 
-                meta.inc_count()
+                inc_metadata(meta, host, status)
+
 
             #if count == 10000:
                 #break
@@ -188,7 +207,7 @@ with open(log_file_path, "r", encoding = 'ISO-8859-1') as file:
             print ('Exception while processing log: ', line)
             print (e)
     
-    insert_metadata(meta.count, lower_b, upper_b)
+    insert_metadata(meta.count, lower_b, upper_b,  meta.get_num_hosts(), meta.denied)
     #print(str(meta.count), str(lower_b), str(upper_b))
     #final batch
     if len(batch) > 0:
