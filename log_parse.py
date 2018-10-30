@@ -23,13 +23,28 @@ tgt_time_fmt = "%Y-%m-%d %H:%M:%S"
 src_time_fmt = "%d/%b/%Y:%H:%M:%S %z"
 
 start_time = "1995-08-01 00:00:00"
-meta = metadata(truncate=True)
+meta = metadata()
 meta.initialize_timer(start_time=start_time)
 window = meta.next_bound()
 lower_b = time.mktime(time.strptime(start_time, tgt_time_fmt))
 upper_b = next(window)
-d_meta = {}
+#d_meta = {}
 
+
+def insert_metadata(count, lower_b, upper_b):
+    d_meta = {}
+    d_meta['count:count'] = str(count)
+    cal = datetime.utcfromtimestamp(lower_b)
+    d_meta['calendar:day'] = str(cal.day)
+    d_meta['calendar:month'] = str(cal.month)
+    d_meta['calendar:hour'] = str(cal.hour)
+    d_meta['calendar:dayofweek'] = str(cal.weekday())
+    d_meta['calendar:date'] = str(cal)
+    if count == 0:
+        print("Corner case found!", str(cal))
+    else:
+        print(str(count), " for ", str(cal))
+    meta.add_row(str(upper_b), d_meta)
 
 #validating IP
 def is_IP(host):
@@ -151,30 +166,30 @@ with open(log_file_path, "r", encoding = 'ISO-8859-1') as file:
             #crosssing the boundry
             elif curr_ts > upper_b:
                 #TODO make sure all the empty bounds are inserted with 0s
-
-                d_meta['count:count'] = str(meta.count)
-                cal = datetime.utcfromtimestamp(lower_b)
-                d_meta['calendar:day'] = str(cal.day)
-                d_meta['calendar:month'] = str(cal.month)
-                d_meta['calendar:hour'] = str(cal.hour)
-                d_meta['calendar:dayofweek'] = str(cal.weekday())
-                d_meta['calendar:date'] = str(cal)
-                print(str(meta.count), " for ", str(cal))
-                meta.add_row(str(upper_b), d_meta)
+                
+                insert_metadata(meta.count, lower_b, upper_b)
 
                 #update these accordingly
                 meta.reset_count()
-                meta.inc_count()
                 lower_b = upper_b
                 upper_b = next(window)
 
-            if count == 10000:
-                break
+                while curr_ts > upper_b:
+                    insert_metadata(0, lower_b, upper_b)
+                    lower_b = upper_b
+                    upper_b = next(window)
+
+                meta.inc_count()
+
+            #if count == 10000:
+                #break
             count += 1
         except Exception as e:
             print ('Exception while processing log: ', line)
             print (e)
-
+    
+    insert_metadata(meta.count, lower_b, upper_b)
+    #print(str(meta.count), str(lower_b), str(upper_b))
     #final batch
     if len(batch) > 0:
         try:
