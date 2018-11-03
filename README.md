@@ -40,33 +40,33 @@ We are using the following HBase tables:
 ### Visualizations:
 
 #### Traffic trends over a month:
-![Traffic trend analysis over a month](https://github.umn.edu/jannu007/hive5/blob/master/Visualizations/graph1.png)
+![Traffic trend analysis over a month](https://github.com/saurabhmj/server-log-analysis/blob/master/Visualizations/graph1.png)
 
 ***
 
 #### Traffic trend analysis over weeks:
-![Traffic trend analysis over weeks](https://github.umn.edu/jannu007/hive5/blob/master/Visualizations/graph2.png)
+![Traffic trend analysis over weeks](https://github.com/saurabhmj/server-log-analysis/blob/master/Visualizations/graph2.png)
 
 ***
 #### Traffic trend analysis by geographic regions
-![Traffic trend analysis by geographic regions](https://github.umn.edu/jannu007/hive5/blob/master/Visualizations/graph3.png)
+![Traffic trend analysis by geographic regions](https://github.com/saurabhmj/server-log-analysis/blob/master/Visualizations/graph3.png)
 
 
 ***
 #### Top 10 popular domain extensions
-![Top 10 popular domain extensions](https://github.umn.edu/jannu007/hive5/blob/master/Visualizations/graph4.png)
+![Top 10 popular domain extensions](https://github.com/saurabhmj/server-log-analysis/blob/master/Visualizations/graph4.png)
 
 
 ***
 #### Distribution of response types
-![Distribution of response types](https://github.umn.edu/jannu007/hive5/blob/master/Visualizations/graph5.png)
+![Distribution of response types](https://github.com/saurabhmj/server-log-analysis/blob/master/Visualizations/graph5.png)
 
 
 ***
 #### Variation in traffic over two days
-![Variation in traffic over two days](https://github.umn.edu/jannu007/hive5/blob/master/Visualizations/graph6.png)
+![Variation in traffic over two days](https://github.com/saurabhmj/server-log-analysis/blob/master/Visualizations/graph6.png)
 
 
 ***
 #### Number of denied requests by day over two months
-![Number of denied requests by day over two months](https://github.umn.edu/jannu007/hive5/blob/master/Visualizations/graph7.png)
+![Number of denied requests by day over two months](https://github.com/saurabhmj/server-log-analysis/blob/master/Visualizations/graph7.png)
