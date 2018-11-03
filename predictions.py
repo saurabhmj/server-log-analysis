@@ -19,6 +19,9 @@ from matplotlib import pyplot
 import numpy
 
 
+#####
+# with generous help from www.machinelearningmastery.com
+#####
 
 
 # frame a sequence as a supervised learning problem
@@ -38,11 +41,11 @@ def difference(dataset, interval=1):
         diff.append(value)
     return Series(diff)
      
-    # invert differenced value
+# invert differenced value
 def inverse_difference(history, yhat, interval=1):
     return yhat + history[-interval]
      
-    # scale train and test data to [-1, 1]
+# scale train and test data to [-1, 1]
 def scale(train, test):
     # fit scaler
     scaler = MinMaxScaler(feature_range=(-1, 1))
@@ -75,15 +78,13 @@ def fit_lstm(train, batch_size, nb_epoch, neurons):
         model.fit(X, y, epochs=1, batch_size=batch_size, verbose=1, shuffle=False)
         model.reset_states()
     return model
-         
-        # make a one-step forecast
+
+
+# make a one-step forecast
 def forecast_lstm(model, batch_size, X):
     X = X.reshape(1, 1, len(X))
     yhat = model.predict(X, batch_size=batch_size)
-    return yhat[0,0]
-
-
-
+    return yhat[0, 0]
 
 
 df = pd.read_csv("/home/ubuntu/workspace/data.csv", index_col=0)
@@ -95,22 +96,25 @@ test_set = 1000
 diff_values = difference(raw_values, 1)
  
 print(diff_values.shape)
-                 # transform data to be supervised learning
+
+# transform data to be supervised learning
 supervised = timeseries_to_supervised(diff_values, 1)
 supervised_values = supervised.values
 
 print(supervised_values.shape)
-  # split data into train and test-sets
+
+# split data into train and test-sets
 train, test = supervised_values[0:-test_set], supervised_values[-test_set:]
 
 print(train.shape)
 print(test.shape)
-   # transform the scale of the data
+# transform the scale of the data
 scaler, train_scaled, test_scaled = scale(train, test)
     
-    # fit the model
+# fit the model
 lstm_model = fit_lstm(train_scaled, 1, 4, 4)
-    # forecast the entire training dataset to build up state for forecasting
+
+# forecast the entire training dataset to build up state for forecasting
 train_reshaped = train_scaled[:, 0].reshape(len(train_scaled), 1, 1)
 lstm_model.predict(train_reshaped, batch_size=1)
 
@@ -128,9 +132,9 @@ for i in range(len(test_scaled)):
     # store forecast
     predictions.append(yhat)
     expected = raw_values[len(train) + i + 1]
-    #print('Month=%d, Predicted=%f, Expected=%f' % (i+1, yhat, expected))
+    # print('Month=%d, Predicted=%f, Expected=%f' % (i+1, yhat, expected))
      
-     # report performance
+# report performance
 rmse = sqrt(mean_squared_error(raw_values[-test_set:], predictions))
 print('Test RMSE: %.3f' % rmse)
 

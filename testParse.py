@@ -1,3 +1,5 @@
+# ------------- test file -- ignore -------------------
+
 from IPy import IP
 import pandas as pd
 import re
@@ -33,12 +35,12 @@ idx=0
 for timeInstance in df.UTCTime:
     Ids.append(str(timeInstance)+"_"+ str(idx))
     idx += 1
-    #time.sleep(1e-12)
+    # time.sleep(1e-12)
 print("ID")
 df["ID"] = Ids
 df["url_ext"] = df.url.map(lambda x: "None" if "." not in x else x.split(".")[1])
 
 df.columns = [x.upper() for x in ["domain","serverTime","type","url","status","bytes_trx","isIP","UTCTime","ID","url_ext"]]
-#print(df)
+# print(df)
 df.to_csv("F:\\Study\\MS\\Big_Data_And_Analytics\\NoSQL_POC\\NASA_access_log_Jul95\\parsed.csv",index=False, columns=[x.upper() for x in ["ID","domain","serverTime","type","url","status","bytes_trx","isIP","UTCTime","url_ext"]])
 print("written")

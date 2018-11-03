@@ -3,31 +3,52 @@ from datetime import datetime
 import time
 
 
+#####
+# Class for metadata operations
+#####
+
 class metadata():
 
-    def __init__(self, table = 'sl_metadata', families = ['metainfo','calendar'], create=False, truncate=False):
+    #####
+    # Constructor with options to truncate or create metadata table
+    #####
+
+    def __init__(self, table='sl_metadata', families=['metainfo','calendar'], create=False, truncate=False):
         self.table = table
         self.families = families
         self.count = 0
         self.denied = 0
         self.hosts = set()
+        self.start_time = 0
+        self.interval = 0
+
         if create:
             self.create_table()
         if truncate:
             self.truncate_table()
 
+    #####
+    # Initialize timer with start time and window interval
+    #####
 
     def initialize_timer(self, start_time="1995-07-01 00:00:00", interval=5):
         ts = time.mktime(time.strptime(start_time, "%Y-%m-%d %H:%M:%S"))
         self.start_time = int(ts)
         self.interval = interval
 
+    #####
+    # Get the next window time using generators
+    #####
 
     def next_bound(self):
         start = self.start_time
         while True:
             start = start + 60*self.interval 
             yield start
+
+    #####
+    # Housekeeping - getters and setters
+    #####
 
     def reset_count(self):
         self.count = 0
@@ -56,13 +77,17 @@ class metadata():
     def create_table(self):
         hbase_client.create_table(self.table, self.families)
 
+    #####
+    # Add row to the metadata table
+    #####
 
     def add_row(self, row_key, column_info):
         hbase_client.insert_row(self.table, row_key, column_info)
 
-        
 
-
+#####
+# Main method to test functionality
+#####
 
 if __name__ == '__main__':
     md = metadata()
