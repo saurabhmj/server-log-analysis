@@ -182,3 +182,34 @@ Each server log contains the request type – GET or POST and we want to find ou
 ***
 #### Number of denied requests by day over two months
 ![Number of denied requests by day over two months](https://github.com/saurabhmj/server-log-analysis/blob/master/Visualizations/graph7.png)
+
+
+## Challenges and learnings:
+
+* It was challenging to set up the entire NoSQL system on AWS Cloud. Multiple issues were faced while setting up configurations particularly: 
+a. Changing parameters in the XML files for configuring Apache HBase.
+b. Setting up Zookeeper Quorum (This is the set of nodes which run Zookeeper)
+c. Opening ports on the AWS so that the EC2 instances can communicate with each other was an issue.
+
+* Initially, we had worked towards using Apache Drill for querying data with HBase. Subsequently, was dropped out of our system due to multiple issues faced while trying to install due to version dependencies especially for Guava. It also did not allow multiple users to connect to HBase concurrently.
+
+* **Be careful while using Apache Phoenix** Switching over to Apache Phoenix to query the data in HBase, we initially faced an issue with Phoenix tables. We initially ingested data through the Phoenix API and created a Phoenix table. However, this meant we lost control over how the internal HBase table is structured as Phoenix takes control over this. In order to be able to use a structure that was well suited to solve business questions we decided to ingest the data in HBase using the HBase API and then create a Phoenix View to query our data.
+
+* Another minor challenge with Phoenix was getting acquainted with the nuances of Phoenix SQLline. **Phoenix automatically type-casts all the commands to uppercase and thus anything that is in lower-case had to be written in double-quotes.** The team members spent at least an hour trying to figure out why their queries did not work when everything *looked* right. Surprisingly, none of the documentation on the Apache Phoenix website addresses this problem. 
+
+* Another issue with Phoenix is **the way data types are structured.** Phoenix has a very specific type-serialization approach that it uses to store various data types. One way that we worked around this is by declaring all columns as `VARCHAR` type in Phoenix and then used the SQL-like functions to convert data types in Phoenix such as `TO_NUMBER` or `TO_TIMESTAMP`.
+
+* In order to be able to use **Tableau to visualize the results of our queries** we intended to use Apache Spark to connect Phoenix to Tableau. However, initially we face issues with user permissions while installing Spark. Once this was fixed we faced an issue wherein we were unable to view the user created tables in Spark and only Phoenix system created table slike the system metadata table were visible through Spark. As were short on time, we then abandoned this approach and moved onto using Apache Zeppelin.
+
+
+## Conclusion
+
+1. Installing Hadoop has a sharp learning curve. After overcoming this factor however, installing any other software over Hadoop becomes easier. 
+
+2. As proved by many other peer projects, big data technologies are buggy and it is unfair to conclude a technology’s usability only by accessing its performance through a demo in an ideal environment.
+
+3. Open source systems are a great and terrible option at the same time. One of the most frustrating parts as a developer is to see an issue you are facing listed as an unresolved bug on Jira of a technology. We were the first-hand witnesses to this thanks to Apache Drill.
+
+4. Technology integration in Hadoop stack can only be verified by doing, implementing and generating test-cases. We were able to get Spark SQL and Phoenix set-up. But, it was not possible to connect both of these technologies together since Spark SQL is unable to read Phoenix Views at this moment.
+
+5. Phoenix provides a very efficient layer to query HBase tables. We can confidently conclude that Phoenix, although not “the perfect” existing querying solution available, does overcome HBase’s lacuna of not having an SQL-like query engine better than many other tools like Drill and Hive.
