@@ -1,3 +1,19 @@
+## Fast links:
+
+1. [Summary](https://github.com/saurabhmj/server-log-analysis/blob/master/README.md#summary)
+2. [Datasets](https://github.com/saurabhmj/server-log-analysis/blob/master/README.md#datasets)
+3. [Technology stack](https://github.com/saurabhmj/server-log-analysis/blob/master/README.md#technology-stack)
+4. [Visualizing the stack](https://github.com/saurabhmj/server-log-analysis/blob/master/README.md#visualizing-the-stack)
+5. [Data pipeline](https://github.com/saurabhmj/server-log-analysis/blob/master/README.md#data-pipeline)
+> - [Data Pre-processing](https://github.com/saurabhmj/server-log-analysis/blob/master/README.md#data-pre-processing)
+> - [Data Ingestion](https://github.com/saurabhmj/server-log-analysis/blob/master/README.md#data-ingestion)
+> - [Data Storage](https://github.com/saurabhmj/server-log-analysis/blob/master/README.md#data-storage)
+> - [HBase tables](https://github.com/saurabhmj/server-log-analysis/blob/master/README.md#hbase-tables-and-schemas)
+6. [Data Querying and Visualizations](https://github.com/saurabhmj/server-log-analysis/blob/master/README.md#data-querying-and-visualizations)
+7. [Challenges and learnings](https://github.com/saurabhmj/server-log-analysis/blob/master/README.md#challenges-and-learnings)
+8. [Conclusion](https://github.com/saurabhmj/server-log-analysis/blob/master/README.md#conclusion)
+  
+
 ## Summary
 
 
